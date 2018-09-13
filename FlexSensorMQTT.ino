@@ -11,8 +11,8 @@ PubSubClient - MQTT
 - To Do :
 Read Analog PIN (done)
 Convert to Degree (done)
-Configure WiFi (not yet)
-Send to MQTT (not yet)
+Configure WiFi (done)
+Send to MQTT (done)
 */
 
 // ESP Library
@@ -102,20 +102,6 @@ void callback(char* topic, byte* payload, unsigned int length){
   }
   Serial.println();
 
- // // FOR TOPIC 1
- // if (strcmp(topic,device1) == 0) {
- //   if(pesan == "true" ){
- //      Serial.println("LED 1 ON");
- //      digitalWrite(LED1, HIGH);
-
- //   } else if(pesan == "false"){
- //      Serial.println("LED 1 OFF");
- //      digitalWrite(LED1,LOW);
- //   }
- //   Serial.print("Masuk : " );
- //   Serial.println(pesan);
- // } 
- 
   Serial.print("Pesan masuk :");
   Serial.println(pesan);
   Serial.println("--------");
@@ -153,8 +139,6 @@ void setup() {
   //Initialize MQTT Connection
   client.setServer(mqttServerIP, mqttPort);
   //client.setCallback(callback); // callback for incoming message
-
- 
 }
 
 void loop() {
