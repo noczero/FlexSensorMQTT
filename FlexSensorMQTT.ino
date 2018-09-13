@@ -2,9 +2,23 @@
 Bismillah
 ---------
 Test Flex Sensor
-- Wemos D1 Mini
-- Resistor 37K between A0 and Ground
+- Hardware :
+Wemos D1 Mini
+Resistor 37K between A0 and Ground
+- Library : 
+ESP8266WiFi - WiFi Connection
+PubSubClient - MQTT
+- To Do :
+Read Analog PIN (done)
+Convert to Degree (done)
+Configure WiFi (not yet)
+Send to MQTT (not yet)
 */
+
+// ESP Library
+#include <ESP8266WiFi.h>
+// MQTT Library
+#include <PubSubClient.h>
 
 #define flexPIN A0
 
