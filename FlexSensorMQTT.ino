@@ -131,10 +131,14 @@ float readingFlex(){
   // map value to degrees
   angle = map(flexR, STRAIGHT_RES , BEND_RES,0 , 90.0);
 
-  return abs(angle);
+  // filter min value
+  //Serial.println("RAW Angle : " + String(angle)); 
+  if(angle >= 0) {
+    return angle;
+  } else {
+    return 0.0;
+  }
 }
-
-
 
 void setup() {
   // put your setup code here, to run once:
@@ -162,5 +166,6 @@ void loop() {
 
   Serial.println("Degree - " + String(readingFlex()));
   client.loop(); //looping forever
+  publishMQTT(device1,String(readingFlex())); // publish value
   delay(100);
 }
