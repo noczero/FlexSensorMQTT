@@ -152,7 +152,7 @@ void setup() {
   
   //Initialize MQTT Connection
   client.setServer(mqttServerIP, mqttPort);
-  client.setCallback(callback); // callback for incoming message
+  //client.setCallback(callback); // callback for incoming message
 
  
 }
