@@ -1,3 +1,4 @@
+
 /**
 Bismillah
 ---------
@@ -21,23 +22,32 @@ Send to MQTT (done)
 #include <PubSubClient.h>
 
 #define flexPIN A0
+#define LED_BUILTIN 2
 
 const float VCC = 4.98; // Wemos D1 Voltage
 const float Resistor_Divider = 36500.0; // ohm resistance
-const float STRAIGHT_RES = 11555.99; // got from flexR when flex is straight
-const float BEND_RES = 60234.45; // got from flexR when flex is bend
+const float STRAIGHT_RES = 25000.00; // got from flexR when flex is straight
+const float BEND_RES = 90000.00; // got from flexR when flex is bend
 
 // Setup WiFI and Broker
 // Wifi Connection
-const char* wifiSSID = "APTRG-LAB";
-const char* wifiPassword = "gsglantaidua";
-
+const char* wifiSSID = "GARUDA JUARA";
+const char* wifiPassword = "bismillahamin";
+//#define wifiSSID "ZeroInside02"
+//#define wifiPassword "testingbray"
+  
 // MQTT Define
 // const char* mqttServerIP = "192.168.43.9";
-const char* mqttServerIP = "192.168.1.2";
+const char* mqttServerIP = "192.168.43.2";
+//#define mqttServerIP "192.168.137.1"
 const int mqttPort = 1883;
+//#define mqttPort "1883"
 
-char* device1= "flex/degree"; // pub & syv
+//char* device1= "flex/degree"; // pub & syv
+#define device1 "flex/degree"
+#define topic_ADC "flex/adc"
+#define topic_V "flex/volt"
+#define topic_R "flex/ohm"
 
 WiFiClient myESP; // myESP become WIFI
 PubSubClient client(myESP);
@@ -83,8 +93,8 @@ void reconnect(){
       Serial.println("Try to connect...");
     }
   }
-  client.publish(device1, "Reconnecting"); // acc
-  client.subscribe(device1);  
+  //client.publish(device1, "Reconnecting"); // acc
+  //client.subscribe(device1);  
 
 }
 
@@ -115,15 +125,24 @@ float readingFlex(){
   flexR = Resistor_Divider * (VCC / flexV - 1.0);
   //Serial.println("Flex Res : " + String(flexR));
   // map value to degrees
-  angle = map(flexR, STRAIGHT_RES , BEND_RES,0 , 90.0);
+  float angles = map(flexR, STRAIGHT_RES , BEND_RES,0 , 90.0);
 
   // filter min value
   //Serial.println("RAW Angle : " + String(angle)); 
-  if(angle >= 0) {
-    return angle;
+  if(angles >= 0 && angles < 90) {
+    return angles;
+  } else if (angles >= 90) {
+    return 90.0;
   } else {
-    return 0.0;
+    return 0;
   }
+}
+
+void blink_led(){
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(100);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(100);
 }
 
 void setup() {
@@ -139,17 +158,33 @@ void setup() {
   //Initialize MQTT Connection
   client.setServer(mqttServerIP, mqttPort);
   //client.setCallback(callback); // callback for incoming message
-}
+  pinMode(LED_BUILTIN, OUTPUT); // led
 
+}
+float prev_angle = 0.0;
 void loop() {
   // put your main code here, to run repeatedly:
 
   if(!client.connected()){
     reconnect();
+    digitalWrite(LED_BUILTIN, HIGH);
   }
 
   Serial.println("Degree - " + String(readingFlex()));
   client.loop(); //looping forever
-  publishMQTT(device1,String(readingFlex())); // publish value
-  delay(100);
+  
+  angle = readingFlex();
+  if(prev_angle != angle){
+    publishMQTT(device1,String(angle)); // publish value
+  
+    if (angle >= 0 && angle <= 90){
+      publishMQTT(topic_ADC,String(flexADC));
+      publishMQTT(topic_V , String(flexV));
+      publishMQTT(topic_R , String(flexR));
+    }
+    prev_angle = angle;
+  }
+  blink_led();
+
+  //delay(240);
 }
